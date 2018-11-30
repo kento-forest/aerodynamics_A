@@ -90,7 +90,7 @@ Xcp_ratio = (Xcp - front_edge) / (back_edge - front_edge)
 with open('output/aeroforce.txt', 'w') as f:
     f.write('CL = '+'{0:.3f}'.format(clp)+'\n')
     f.write('CD = '+'{0:.3f}'.format(cdp)+'\n')
-    f.write('aerodynamic center = '+"{0:.3f}".format(Xcp)+' chord length')
+    f.write('aerodynamic center = '+"{0:.3f}".format(Xcp_ratio)+' chord length')
 
 print('CL = '+'{0:.3f}'.format(clp))
 print('CD = '+'{0:.3f}'.format(cdp))
