@@ -70,7 +70,7 @@ plt.plot(xi[:, 0], ita[:, 0], "r")
 plt.xlabel(r"$\xi$")
 plt.ylabel(r"$\eta$")
 plt.colorbar()
-plt.savefig("output/streamline.png")
+plt.savefig("output/streamline.png",  bbox_inches='tight')
 plt.close()
 
 # Cp
@@ -82,7 +82,7 @@ plt.plot(xi[:, 0], ita[:, 0], "r")
 plt.xlabel(r"$\xi$")
 plt.ylabel(r"$\eta$")
 plt.colorbar()
-plt.savefig("output/Cp.png")
+plt.savefig("output/Cp.png",  bbox_inches='tight')
 
 # wall pressure
 fig = plt.figure(figsize=(10, 12), dpi=200)
@@ -104,4 +104,4 @@ ax1.grid(which='major', axis='x', linewidth=0.75, linestyle='-', color='0.75')
 ax1.grid(which='minor', axis='x', linewidth=0.25, linestyle='-', color='0.75')
 ax1.grid(which='major', axis='y', linewidth=0.75, linestyle='-', color='0.75')
 ax1.grid(which='minor', axis='y', linewidth=0.25, linestyle='-', color='0.75')
-plt.savefig("output/wallpressure.png")
+plt.savefig("output/wallpressure.png",  bbox_inches='tight')
