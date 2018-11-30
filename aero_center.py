@@ -105,7 +105,8 @@ fig = plt.figure(figsize=(10, 10), dpi=200)
 plt.xlim(-1, 1)
 for alpha in ALPHA_list:
     xi, Cm = cal_cm(alpha)
-    plt.plot(xi[:-1, 0], Cm, lw=0.5, c=cm.hsv(count/len(ALPHA_list)))
+    plt.plot(xi[:-1, 0], Cm, lw=0.5, c=cm.hsv(count/len(ALPHA_list)), label="{0: 2d}".format(alpha)+" deg")
     count += 1
+plt.legend()
 plt.savefig('output/cm_alpha.png', bbox_inches='tight')
 plt.close()
