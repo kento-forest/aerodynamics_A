@@ -80,7 +80,7 @@ clp = cy_p * np.cos(ALPHA) - cx_p * np.sin(ALPHA)
 front_edge = min(xi[:, 0])
 back_edge = max(xi[:, 0])
 
-# center of moment
+# aerodynamic center
 fx = np.array([(-(ita[(i+1)%3600, 0] - ita[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
 fy = np.array([((xi[(i+1)%3600, 0] - xi[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
 
