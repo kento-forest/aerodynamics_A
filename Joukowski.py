@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 
 # paramater
 RADIUS_A = 0.6
-ALPHA = np.radians(5)
-BETA = np.radians(20)
-U_0 = 1
+ALPHA = np.radians(5.0)
+BETA = np.radians(20.0)
+U_0 = 1.0
 C = 0.5
+DENSITY = 1.0
 
 # Kutta condition
 GAMMA = 4 * np.pi * U_0 * RADIUS_A * np.sin(ALPHA + BETA)
@@ -27,7 +28,7 @@ theta0 = -BETA
 
 # zeta-plane
 xi = np.zeros((mx, my))
-ita = np.zeros((mx, my))
+eta = np.zeros((mx, my))
 streamfunc = np.zeros((mx, my))
 
 # grid prepare
@@ -52,7 +53,7 @@ streamfunc = np.imag(cf)  # stream function
 # zeta-plane
 zeta = cZ + complex(C**2, 0.0)/cZ
 xi = np.real(zeta)
-ita = np.imag(zeta)
+eta = np.imag(zeta)
 
 # Cp
 cf = np.exp(complex(0.0, -ALPHA)) * (cU_0 * (complex(1.0, 0.0) - cRADIUS_A**2/cz**2) + cGAMMA/cz) \
@@ -64,8 +65,8 @@ cx_p = 0.0
 cy_p = 0.0
 for i in range(mx-1):
     d_xi  = xi[i+1, 0] - xi[i, 0]
-    d_ita = ita[i+1, 0] - ita[i, 0]
-    dnx = d_ita
+    d_eta = eta[i+1, 0] - eta[i, 0]
+    dnx = d_eta
     dny = -d_xi
     cp_ave = (Cp[i+1, 0] + Cp[i, 0])/2.0
     cx_p = cx_p-cp_ave*dnx
@@ -81,11 +82,16 @@ front_edge = min(xi[:, 0])
 back_edge = max(xi[:, 0])
 
 # aerodynamic center
-fx = np.array([(-(ita[(i+1)%3600, 0] - ita[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
-fy = np.array([((xi[(i+1)%3600, 0] - xi[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
+fx = np.array([(-(eta[(i+1), 0] - eta[i, 0]) * (Cp[i, 0] + Cp[(i+1), 0]) / 2) for i in range(eta.shape[0]-1)])
+fy = np.array([((xi[(i+1), 0] - xi[i, 0]) * (Cp[i, 0] + Cp[(i+1), 0]) / 2) for i in range(eta.shape[0]-1)])
 
-Xcp = np.sum([xi[i][0] * fy[i] - ita[i][0] * fx[i] for i in range(ita.shape[0])]) / np.sum([fy[i] for i in range(ita.shape[0]-1)])
+Xcp = np.sum([xi[i][0] * fy[i] - eta[i][0] * fx[i] for i in range(eta.shape[0]-1)]) / np.sum([fy[i] for i in range(eta.shape[0]-1)])
 Xcp_ratio = (Xcp - front_edge) / (back_edge - front_edge)
+
+# Cm
+Cm = np.array([(np.sum(2*((xi[j, 0] - xi[i, 0]) * fy[i] + eta[i, 0] * fx[i]) for i in range(eta.shape[0]-1))
+                / (DENSITY * U_0** 2 * (back_edge - front_edge)**2)) for j in range(eta.shape[0]-1)])
+
 
 with open('output/aeroforce.txt', 'w') as f:
     f.write('CL = '+'{0:.3f}'.format(clp)+'\n')
@@ -101,24 +107,24 @@ print('aerodynamic center = '+'{0:.3f}'.format(Xcp_ratio)+' chord length')
 fig = plt.figure(figsize=(12, 10), dpi=200)
 plt.xlim(-3, 3)
 plt.ylim(-3, 3)
-plt.contour(xi, ita, streamfunc, levels=[0.1 * x for x in range(-40, 40, 1)])
-plt.plot(xi[:, 0], ita[:, 0], "r")
+plt.contour(xi, eta, streamfunc, levels=[0.1 * x for x in range(-40, 40, 1)])
+plt.plot(xi[:, 0], eta[:, 0], "r")
 plt.xlabel(r"$\xi$")
 plt.ylabel(r"$\eta$")
 plt.colorbar()
-plt.savefig("output/streamline.png",  bbox_inches='tight')
+plt.savefig("output/streamline.png", bbox_inches='tight')
 plt.close()
 
 # Cp
 fig = plt.figure(figsize=(12, 10), dpi=200)
 plt.xlim(-3, 3)
 plt.ylim(-3, 3)
-plt.contour(xi, ita, Cp, levels=[0.1 * x for x in range(-40, 40, 1)])
-plt.plot(xi[:, 0], ita[:, 0], "r")
+plt.contour(xi, eta, Cp, levels=[0.1 * x for x in range(-40, 40, 1)])
+plt.plot(xi[:, 0], eta[:, 0], "r")
 plt.xlabel(r"$\xi$")
 plt.ylabel(r"$\eta$")
 plt.colorbar()
-plt.savefig("output/Cp.png",  bbox_inches='tight')
+plt.savefig("output/Cp.png", bbox_inches='tight')
 
 # Cp distribution
 fig = plt.figure(figsize=(10, 12), dpi=200)
@@ -128,7 +134,7 @@ ax1.set_xlim(-2, 2)
 ax1.set_ylim(-2, 4)
 ax1.set_xlabel(r"$\xi$")
 ax1.set_ylabel(r"$\eta$")
-ax1.plot(xi[:, 0], ita[:, 0], "r")
+ax1.plot(xi[:, 0], eta[:, 0], "r")
 ax2.set_ylim(2, -4)
 ax2.plot(xi[:, 0], Cp[:, 0], "b")
 ax2.set_ylabel(r"$Cp$")
@@ -140,4 +146,12 @@ ax1.grid(which='major', axis='x', linewidth=0.75, linestyle='-', color='0.75')
 ax1.grid(which='minor', axis='x', linewidth=0.25, linestyle='-', color='0.75')
 ax1.grid(which='major', axis='y', linewidth=0.75, linestyle='-', color='0.75')
 ax1.grid(which='minor', axis='y', linewidth=0.25, linestyle='-', color='0.75')
-plt.savefig("output/wallpressure.png",  bbox_inches='tight')
+plt.savefig("output/wallpressure.png", bbox_inches='tight')
+
+# Cm
+fig = plt.figure(figsize=(10, 10), dpi=200)
+plt.xlim(-1, 1)
+plt.plot(xi[:-1, 0], Cm, lw = 1)
+plt.xlabel(r"$\xi$")
+plt.ylabel(r"$C_m$")
+plt.savefig('output/Cm.png', bbox_inches='tight')
