@@ -25,41 +25,39 @@ dr = 5/(my)
 dtheta = np.radians(360/mx)
 theta0 = -BETA
 
-## prepare matrix
-x = np.zeros((mx, my))
-y = np.zeros((mx, my))
-potential = np.zeros((mx, my))
-Cp = np.zeros((mx, my))
-
 # zeta-plane
 xi = np.zeros((mx, my))
 ita = np.zeros((mx, my))
 streamfunc = np.zeros((mx, my))
 
+# grid prepare
+i_mat = np.array([[i for j in range(my)] for i in range(mx)])
+j_mat = np.array([[j for j in range(my)] for i in range(mx)])
 
-## Start cal
-for i in range(mx):
-    for j in range(my):
-        rrr = RADIUS_A + dr * float(j)
-        theta = theta0 + dtheta *float(i)
-        x[i, j] = rrr * np.cos(theta)
-        y[i, j] = rrr * np.sin(theta)
+rrr = RADIUS_A + dr * j_mat
+theta = theta0 + dtheta * i_mat
+x = rrr * np.cos(theta)
+y = rrr * np.sin(theta)
 
-        cZ = complex(x[i, j], y[i, j]) + cCENT
-        cz = (cZ - cCENT) * np.exp(complex(0.0, -ALPHA))
-        cf = cU_0 * (cz + cRADIUS_A**2 / cz) + cGAMMA * np.log(cz)
-        potential[i, j]  = np.real(cf)
-        streamfunc[i, j] = np.imag(cf)
+# x and y matrix ==> x+iy matrix
+cxy = np.array([complex(xi, yi) for (xi, yi) in zip(np.ravel(x), np.ravel(y))])
+cxy = np.reshape(cxy, x.shape)
 
-        # zeta-plane
-        zeta = cZ + complex(C**2, 0.0)/cZ
-        xi[i, j]  = np.real(zeta)
-        ita[i, j] = np.imag(zeta)
+cZ = cxy + cCENT
+cz = (cZ - cCENT) * np.exp(complex(0.0, -ALPHA))
+cf = cU_0 * (cz + cRADIUS_A**2 / cz) + cGAMMA * np.log(cz)
+potential = np.real(cf)  # potential
+streamfunc = np.imag(cf)  # stream function
 
-        # Cp
-        cf = np.exp(complex(0.0, -ALPHA)) * (cU_0 * (complex(1.0, 0.0) - cRADIUS_A**2/cz**2) + cGAMMA/cz) \
-                    / (complex(1.0, 0.0) - complex(C, 0.0)**2/cZ**2)
-        Cp[i, j] = 1.0 - (np.real(cf)**2 + np.imag(cf)**2)/(U_0**2)
+# zeta-plane
+zeta = cZ + complex(C**2, 0.0)/cZ
+xi = np.real(zeta)
+ita = np.imag(zeta)
+
+# Cp
+cf = np.exp(complex(0.0, -ALPHA)) * (cU_0 * (complex(1.0, 0.0) - cRADIUS_A**2/cz**2) + cGAMMA/cz) \
+            / (complex(1.0, 0.0) - complex(C, 0.0)**2/cZ**2)
+Cp = 1.0 - (np.real(cf)**2 + np.imag(cf)**2)/(U_0**2)
 
 # cal aeroforce on wall
 cx_p = 0.0
