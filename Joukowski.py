@@ -61,6 +61,29 @@ for i in range(mx):
                     / (complex(1.0, 0.0) - complex(C, 0.0)**2/cZ**2)
         Cp[i, j] = 1.0 - (np.real(cf)**2 + np.imag(cf)**2)/(U_0**2)
 
+# cal aeroforce on wall
+cx_p = 0.0
+cy_p = 0.0
+for i in range(mx-1):
+    d_xi  = xi[i+1, 0] - xi[i, 0]
+    d_ita = ita[i+1, 0] - ita[i, 0]
+    dnx = d_ita
+    dny = -d_xi
+    cp_ave = (Cp[i+1, 0] + Cp[i, 0])/2.0
+    cx_p = cx_p-cp_ave*dnx
+    cy_p = cy_p-cp_ave*dny
+
+cx_p = cx_p / (4.0 * C)
+cy_p = cy_p / (4.0 * C)
+cdp = cx_p * np.cos(ALPHA) + cy_p * np.sin(ALPHA)
+clp = cy_p * np.cos(ALPHA) - cx_p * np.sin(ALPHA)
+
+with open('output/aeroforce.txt', 'w') as f:
+    f.write('CL = '+str(clp)+'\n')
+    f.write('CD = '+str(cdp)+'\n')
+print('CL = '+str(clp))
+print('CD = '+str(cdp))
+
 # Streamline
 fig = plt.figure(figsize=(12, 10), dpi=200)
 plt.xlim(-3, 3)
@@ -84,7 +107,7 @@ plt.ylabel(r"$\eta$")
 plt.colorbar()
 plt.savefig("output/Cp.png",  bbox_inches='tight')
 
-# wall pressure
+# Cp distribution
 fig = plt.figure(figsize=(10, 12), dpi=200)
 ax1 = fig.add_subplot(111)
 ax2 = ax1.twinx()
