@@ -76,11 +76,26 @@ cy_p = cy_p / (4.0 * C)
 cdp = cx_p * np.cos(ALPHA) + cy_p * np.sin(ALPHA)
 clp = cy_p * np.cos(ALPHA) - cx_p * np.sin(ALPHA)
 
+
+front_edge = min(xi[:, 0])
+back_edge = max(xi[:, 0])
+
+# center of moment
+fx = np.array([(-(ita[(i+1)%3600, 0] - ita[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
+fy = np.array([((xi[(i+1)%3600, 0] - xi[i, 0]) * (Cp[i, 0] + Cp[(i+1)%3600, 0]) / 2) for i in range(ita.shape[0])])
+
+Xcp = np.sum([xi[i][0] * fy[i] - ita[i][0] * fx[i] for i in range(ita.shape[0])]) / np.sum([fy[i] for i in range(ita.shape[0]-1)])
+Xcp_ratio = (Xcp - front_edge) / (back_edge - front_edge)
+
 with open('output/aeroforce.txt', 'w') as f:
-    f.write('CL = '+str(clp)+'\n')
-    f.write('CD = '+str(cdp)+'\n')
-print('CL = '+str(clp))
-print('CD = '+str(cdp))
+    f.write('CL = '+'{0:.3f}'.format(clp)+'\n')
+    f.write('CD = '+'{0:.3f}'.format(cdp)+'\n')
+    f.write('aerodynamic center = '+"{0:.3f}".format(Xcp)+' chord length')
+
+print('CL = '+'{0:.3f}'.format(clp))
+print('CD = '+'{0:.3f}'.format(cdp))
+print('aerodynamic center = '+'{0:.3f}'.format(Xcp_ratio)+' chord length')
+
 
 # Streamline
 fig = plt.figure(figsize=(12, 10), dpi=200)

@@ -1,2 +1,3 @@
-CL = 3.186464928023956
-CD = -3.3874585636528565e-07
+CL = 3.186
+CD = -0.000
+aerodynamic center = -0.132 chord length
